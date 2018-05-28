@@ -1,0 +1,9 @@
+/* This is a source code file! */
+
+# TODO: decide on comment syntax
+
+// We need to get rid of some warnings:
+// https://stackoverflow.com/questions/25877285/how-to-disable-unused-code-warnings-in-rust
+
+// And then do this thing:
+// https://github.com/ogham/rust-users/issues/22

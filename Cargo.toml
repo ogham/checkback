@@ -1,0 +1,27 @@
+[package]
+name = "checkback"
+version = "0.1.0"
+authors = ["Benjamin Sago <ogham@bsago.me>"]
+
+[dependencies]
+
+# filesystem
+walkdir = "2"
+
+# url extraction
+regex = "1"
+lazy_static = "1"
+
+# command-line
+quicli = "0.2"
+ansi_term = "0.11"
+
+# json
+serde = "1.0"
+serde_json = "1.0"
+
+# http getting
+reqwest = "0.8.5"
+
+# time
+datetime = "0.4"
