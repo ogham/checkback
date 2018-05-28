@@ -10,7 +10,7 @@ use regex::Regex;
 
 extern crate serde;
 extern crate serde_json;
-use walkdir::WalkDir;
+use walkdir::{WalkDir, DirEntry};
 
 extern crate datetime;
 use datetime::Instant;
@@ -30,13 +30,25 @@ mod ui;
 use ui::UI;
 
 
+fn is_hidden(entry: &DirEntry) -> bool {
+    entry.file_name()
+         .to_str()
+         .map(|s| s.starts_with("."))
+         .unwrap_or(false)
+}
+
 fn main() {
     for input_path in input_paths() {
-        for entry in WalkDir::new(input_path) {
-            let entry = entry.unwrap();
-            if entry.file_type().is_file() {
-                let contents = read_file(entry.path());
-                process_file(entry.path(), &contents);
+        if input_path.is_file() {
+            process_file(&input_path);
+        }
+        else {
+            let walker = WalkDir::new(input_path).into_iter();
+            for entry in walker.filter_entry(|e| !is_hidden(e)) {
+                let entry = entry.unwrap();
+                if entry.file_type().is_file() {
+                    process_file(entry.path());
+                }
             }
         }
     }
@@ -52,7 +64,9 @@ fn read_file(path: &Path) -> String {
     contents
 }
 
-fn process_file(path: &Path, contents: &str) {
+fn process_file(path: &Path) {
+    let contents = read_file(path);
+
     for url in GH.captures_iter(&contents) {
         let link = GitHubLink::get(&url[1], &url[2], url[3].parse().unwrap());
         if link.is_recent(*NOW) {
