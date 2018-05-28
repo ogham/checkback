@@ -14,3 +14,4 @@ have had any updates within the last month. With luck, someone will have
 posted an answer, fix, or workaround for your problem, meaning you can update
 your code and remove the link.
 
+![Screenshot of checkback](screenshot.png)
