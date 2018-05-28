@@ -88,14 +88,14 @@ fn process_line(path: &Path, line: &str, line_number: usize, all: bool) {
     for url in GH.captures_iter(&line) {
         let link = GitHubLink::get(&url[1], &url[2], url[3].parse().unwrap());
         if all || link.is_recent(*NOW) {
-            UI.print_link(path, line_number, &link.url, &link.title);
+            UI.print_link(path, line_number, &link.url, &link.title, link.last_update_time);
         }
     }
 
     for url in SO.captures_iter(&line) {
         let link = StackOverflowLink::get(url[1].parse().unwrap());
         if all || link.is_recent(*NOW) {
-            UI.print_link(path, line_number, &link.url, &link.title);
+            UI.print_link(path, line_number, &link.url, &link.title, link.last_update_time);
         }
     }
 }

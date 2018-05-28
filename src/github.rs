@@ -7,7 +7,7 @@ use serde_json::{self, Value as JsonValue};
 pub struct GitHubLink {
     pub title: String,
     pub url: String,
-    pub last_update_time: i64,
+    pub last_update_time: LocalDateTime,
 }
 
 impl GitHubLink {
@@ -27,12 +27,12 @@ impl GitHubLink {
         let url   = v["url"].as_str().unwrap().to_owned();
         let iso   = v["updated_at"].as_str().unwrap();
 
-        let last_update_time = LocalDateTime::from_str(iso).unwrap().to_instant().seconds();
+        let last_update_time = LocalDateTime::from_str(iso).unwrap();
         GitHubLink { title, url, last_update_time }
     }
 
     pub fn is_recent(&self, now: Instant) -> bool {
-        now.seconds() - self.last_update_time < 9999999
+        now.seconds() - self.last_update_time.to_instant().seconds() < 9999999
     }
 }
 

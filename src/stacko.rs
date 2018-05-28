@@ -1,4 +1,4 @@
-use datetime::Instant;
+use datetime::{Instant, LocalDateTime};
 use reqwest::get as http_get;
 use serde_json::{self, Value as JsonValue};
 
@@ -7,7 +7,7 @@ use serde_json::{self, Value as JsonValue};
 pub struct StackOverflowLink {
     pub title: String,
     pub url: String,
-    pub last_update_time: i64,
+    pub last_update_time: LocalDateTime,
 }
 
 impl StackOverflowLink {
@@ -22,12 +22,12 @@ impl StackOverflowLink {
 
         let title = v["items"][0]["title"].as_str().unwrap().to_owned();
         let url   = v["items"][0]["link"].as_str().unwrap().to_owned();
-        let last_update_time = v["items"][0]["last_activity_date"].as_i64().unwrap();
+        let last_update_time = LocalDateTime::at(v["items"][0]["last_activity_date"].as_i64().unwrap());
         StackOverflowLink { title, url, last_update_time }
     }
 
     pub fn is_recent(&self, now: Instant) -> bool {
-        now.seconds() - self.last_update_time < 9999999
+        now.seconds() - self.last_update_time.to_instant().seconds() < 9999999
     }
 }
 
