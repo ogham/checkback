@@ -3,6 +3,8 @@ use std::path::{Path, PathBuf};
 extern crate quicli;
 use quicli::prelude::*;
 
+#[macro_use] extern crate human_panic;
+
 #[macro_use] extern crate lazy_static;
 extern crate walkdir;
 extern crate regex;
@@ -51,6 +53,7 @@ fn is_hidden(entry: &DirEntry) -> bool {
 
 fn main() {
     env_logger::init();
+    setup_panic!();
 
     let options = Options::from_args();
     for input_path in options.paths {
