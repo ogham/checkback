@@ -1,6 +1,7 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
-#[macro_use] extern crate quicli;
+extern crate quicli;
+use quicli::prelude::*;
 
 #[macro_use] extern crate lazy_static;
 extern crate walkdir;
@@ -26,11 +27,19 @@ use github::GitHubLink;
 mod stacko;
 use stacko::StackOverflowLink;
 
-mod options;
-use options::input_paths;
-
 mod ui;
 use ui::UI;
+
+#[derive(StructOpt, Debug)]
+#[structopt(raw(setting = "structopt::clap::AppSettings::ColoredHelp"))]
+pub struct Options {
+
+    #[structopt(short = "a")]
+    all: bool,
+
+    #[structopt(parse(from_os_str))]
+    paths: Vec<PathBuf>,
+}
 
 
 fn is_hidden(entry: &DirEntry) -> bool {
@@ -43,16 +52,17 @@ fn is_hidden(entry: &DirEntry) -> bool {
 fn main() {
     env_logger::init();
 
-    for input_path in input_paths() {
+    let options = Options::from_args();
+    for input_path in options.paths {
         if input_path.is_file() {
-            process_file(&input_path);
+            process_file(&input_path, options.all);
         }
         else {
             let walker = WalkDir::new(input_path).into_iter();
             for entry in walker.filter_entry(|e| !is_hidden(e)) {
                 let entry = entry.unwrap();
                 if entry.file_type().is_file() {
-                    process_file(entry.path());
+                    process_file(entry.path(), options.all);
                 }
             }
         }
@@ -69,19 +79,21 @@ fn read_file(path: &Path) -> String {
     contents
 }
 
-fn process_file(path: &Path) {
+fn process_file(path: &Path, all: bool) {
+    debug!("Scanning file {:?}", path);
+
     let contents = read_file(path);
 
     for url in GH.captures_iter(&contents) {
         let link = GitHubLink::get(&url[1], &url[2], url[3].parse().unwrap());
-        if link.is_recent(*NOW) {
+        if all || link.is_recent(*NOW) {
             UI.print_link(path, &link.url, &link.title);
         }
     }
 
     for url in SO.captures_iter(&contents) {
         let link = StackOverflowLink::get(url[1].parse().unwrap());
-        if link.is_recent(*NOW) {
+        if all || link.is_recent(*NOW) {
             UI.print_link(path, &link.url, &link.title);
         }
     }
