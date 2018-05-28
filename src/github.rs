@@ -15,6 +15,8 @@ impl GitHubLink {
         use std::str::FromStr;
 
         let url = format!("https://api.github.com/repos/{}/{}/issues/{}", user, repo, issue_id);
+        info!("Making API call to {:?}", url);
+
         let mut resp = http_get(&url).unwrap();
         assert!(resp.status().is_success());
         let text = resp.text().unwrap();

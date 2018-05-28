@@ -13,6 +13,7 @@ pub struct StackOverflowLink {
 impl StackOverflowLink {
     pub fn get(question_id: u32) -> Self {
         let url = format!("https://api.stackexchange.com/2.2/questions/{}?site=stackoverflow", question_id);
+        info!("Making API call to {:?}", url);
         let mut resp = http_get(&url).unwrap();
         assert!(resp.status().is_success());
         let text = resp.text().unwrap();

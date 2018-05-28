@@ -17,6 +17,9 @@ use datetime::Instant;
 
 extern crate ansi_term;
 
+#[macro_use] extern crate log;
+extern crate env_logger;
+
 mod github;
 use github::GitHubLink;
 
@@ -38,6 +41,8 @@ fn is_hidden(entry: &DirEntry) -> bool {
 }
 
 fn main() {
+    env_logger::init();
+
     for input_path in input_paths() {
         if input_path.is_file() {
             process_file(&input_path);
