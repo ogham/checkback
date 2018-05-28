@@ -72,32 +72,30 @@ fn main() {
     }
 }
 
-fn read_file(path: &Path) -> String {
-    use std::fs::File;
-    use std::io::prelude::*;
-
-    let mut file = File::open(path).unwrap();
-    let mut contents = String::new();
-    file.read_to_string(&mut contents).unwrap();
-    contents
-}
-
 fn process_file(path: &Path, all: bool) {
+    use std::fs::File;
+    use std::io::{BufReader, BufRead};
+
     debug!("Scanning file {:?}", path);
 
-    let contents = read_file(path);
+    let file = File::open(path).unwrap();
+    for (line_number, line) in BufReader::new(file).lines().enumerate() {
+        process_line(path, line.unwrap().as_ref(), line_number + 1, all);
+    }
+}
 
-    for url in GH.captures_iter(&contents) {
+fn process_line(path: &Path, line: &str, line_number: usize, all: bool) {
+    for url in GH.captures_iter(&line) {
         let link = GitHubLink::get(&url[1], &url[2], url[3].parse().unwrap());
         if all || link.is_recent(*NOW) {
-            UI.print_link(path, &link.url, &link.title);
+            UI.print_link(path, line_number, &link.url, &link.title);
         }
     }
 
-    for url in SO.captures_iter(&contents) {
+    for url in SO.captures_iter(&line) {
         let link = StackOverflowLink::get(url[1].parse().unwrap());
         if all || link.is_recent(*NOW) {
-            UI.print_link(path, &link.url, &link.title);
+            UI.print_link(path, line_number, &link.url, &link.title);
         }
     }
 }
